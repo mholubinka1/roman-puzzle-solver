@@ -80,17 +80,17 @@ animation.
 
 ### Acceptance criteria
 
-- [ ] `Arranger.solve` against the real `card_config.json` returns an arrangement in which
+- [x] `Arranger.solve` against the real `card_config.json` returns an arrangement in which
       every interior edge (horizontal and vertical) matches and each card number `1..12`
       appears exactly once.
-- [ ] A deliberately unsolvable 12-card set makes `solve` raise the no-solution error.
-- [ ] The solution-dict builder produces `{"x,y": {"card", "orientation"}}` with `(0,0)`
+- [x] A deliberately unsolvable 12-card set makes `solve` raise the no-solution error.
+- [x] The solution-dict builder produces `{"x,y": {"card", "orientation"}}` with `(0,0)`
       top-left and column-first keys for a known arrangement.
-- [ ] `python main.py` writes `out/solution.json` and prints a line naming that path.
-- [ ] `python main.py` with a config that has no solution exits non-zero and leaves the
+- [x] `python main.py` writes `out/solution.json` and prints a line naming that path.
+- [x] `python main.py` with a config that has no solution exits non-zero and leaves the
       output directory untouched.
-- [ ] `out/` is gitignored.
-- [ ] The pre-commit suite passes on all changed files.
+- [x] `out/` is gitignored.
+- [x] The pre-commit suite passes on all changed files.
 
 ---
 
