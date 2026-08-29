@@ -130,3 +130,6 @@ dmypy.json
 
 # Claude Code
 .claude
+
+# Solver output
+out/

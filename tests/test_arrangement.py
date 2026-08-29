@@ -1,0 +1,47 @@
+from arrangement import Arrangement, Placement, to_solution_dict
+from card.card import Card, Symbol
+from card.side import Side
+from card.symbol_type import SymbolType
+
+
+def a_card(number: int = 1) -> Card:
+    return Card.from_sides(
+        number,
+        {side: Symbol(SymbolType.CHARIOT, 1) for side in Side},
+    )
+
+
+def test_a_new_arrangement_has_no_placements():
+    arrangement = Arrangement()
+
+    assert arrangement.placement_at(0, 0) is None
+    assert not arrangement.is_complete()
+
+
+def test_with_placement_records_a_placement_without_changing_the_original():
+    empty = Arrangement()
+    placement = Placement(a_card(7), 90)
+
+    filled = empty.with_placement(2, 1, placement)
+
+    assert filled.placement_at(2, 1) == placement
+    assert empty.placement_at(2, 1) is None
+
+
+def test_an_arrangement_is_complete_once_every_cell_is_filled():
+    arrangement = Arrangement()
+    for y in range(3):
+        for x in range(4):
+            arrangement = arrangement.with_placement(x, y, Placement(a_card(), 0))
+
+    assert arrangement.is_complete()
+
+
+def test_to_solution_dict_keys_cells_by_coordinate_from_the_top_left():
+    arrangement = Arrangement().with_placement(0, 0, Placement(a_card(3), 0))
+    arrangement = arrangement.with_placement(3, 2, Placement(a_card(11), 270))
+
+    solution = to_solution_dict(arrangement)
+
+    assert solution["0,0"] == {"card": 3, "orientation": 0}
+    assert solution["3,2"] == {"card": 11, "orientation": 270}
