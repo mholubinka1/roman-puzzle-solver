@@ -30,17 +30,17 @@ validating function.
 
 ### Acceptance criteria
 
-- [ ] `Symbol.is_match` returns true for equal type with halves summing to zero, true for a
+- [x] `Symbol.is_match` returns true for equal type with halves summing to zero, true for a
       `None` neighbour, false for a type mismatch, and false for a non-zero half sum.
-- [ ] `Card.symbol_at(side, orientation)` returns the correct canonical symbol for every
+- [x] `Card.symbol_at(side, orientation)` returns the correct canonical symbol for every
       side across all four orientations, consistent with a clockwise rotation.
-- [ ] `Card` and `Symbol` instances cannot be mutated after construction; there is no
+- [x] `Card` and `Symbol` instances cannot be mutated after construction; there is no
       `rotate` method.
-- [ ] `load_cards("card_config.json")` returns 12 `Card` objects with the expected numbers
+- [x] `load_cards("card_config.json")` returns 12 `Card` objects with the expected numbers
       and canonical symbols.
-- [ ] `load_cards` raises a clear error for each of: wrong card count, a card missing a
+- [x] `load_cards` raises a clear error for each of: wrong card count, a card missing a
       side, a duplicated side id, an unknown symbol name, a half that is not `1` or `-1`.
-- [ ] The pre-commit suite passes on all changed files.
+- [x] The pre-commit suite passes on all changed files.
 
 ---
 
