@@ -2,16 +2,14 @@ from enum import IntEnum, unique
 
 
 @unique
-class Sides(IntEnum):
-    TOP = 1
-    RIGHT = 2
-    BOTTOM = 3
-    LEFT = 4
+class Side(IntEnum):
+    """An edge of a card. Ordered clockwise so a rotation is a shift of the index."""
+
+    TOP = 0
+    RIGHT = 1
+    BOTTOM = 2
+    LEFT = 3
 
 
-def to_side(side_string: str):
-    return Sides[side_string.upper()]
-
-
-def circular_addition(x: int, y: int, mod: int = 4) -> int:
-    return (x + y) % mod
+def to_side(name: str) -> Side:
+    return Side[name.upper()]

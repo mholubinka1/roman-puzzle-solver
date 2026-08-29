@@ -21,6 +21,8 @@ dev = [
   "isort>=8.0.1",
   "mypy>=2.3.0",
   "pre-commit>=4.6.2",
+  "pytest>=8.3.4",
+  "pytest-cov>=6.0.0",
   "ruff>=0.16.2",
 ]
 
@@ -54,3 +56,7 @@ warn_redundant_casts = true
 implicit_reexport = false
 strict_equality = true
 no_implicit_optional = true
+
+[tool.pytest]
+ini_options.testpaths = [ "tests" ]
+ini_options.pythonpath = [ "." ]
