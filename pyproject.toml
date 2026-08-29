@@ -1,19 +1,56 @@
-[tool.poetry]
+[project]
 name = "roman-puzzle"
 version = "0.1.0"
 description = ""
-authors = ["Matt Holubinka <meholubinka@gmail.com>"]
 readme = "README.md"
-packages = [{include = "roman_puzzle"}]
+authors = [ { name = "Matt Holubinka", email = "meholubinka@gmail.com" } ]
+requires-python = ">=3.10"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+dependencies = []
 
-[tool.poetry.dependencies]
-python = "^3.10"
-argparse = "^1.4.0"
-black = "^24.3.0"
-mypy = "^1.0.0"
-isort = "^5.12.0"
+[dependency-groups]
+dev = [
+  "black>=26.5.1",
+  "isort>=8.0.1",
+  "mypy>=2.3.0",
+  "pre-commit>=4.6.2",
+  "ruff>=0.16.2",
+]
 
+[tool.uv]
+# The code is a loose collection of modules, not an installable distribution
+# (the old Poetry `packages` entry pointed at a directory that never existed).
+package = false
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.ruff]
+# I001 (import sorting) is disabled: isort --profile black already owns import order,
+# and it disagrees with ruff's isort implementation on a couple of groupings, so
+# running both fights over the same job. octopus-monitoring's BLE001 ignore is
+# deliberately not carried over — it is specific to that app's except boundaries.
+lint.ignore = [ "I001" ]
+
+[tool.isort]
+profile = "black"
+
+[tool.pyproject-fmt]
+keep_full_version = true
+
+[tool.mypy]
+exclude = "tests"
+ignore_missing_imports = true
+disallow_subclassing_any = true
+disallow_untyped_calls = false
+disallow_untyped_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false
+warn_redundant_casts = true
+implicit_reexport = false
+strict_equality = true
+no_implicit_optional = true

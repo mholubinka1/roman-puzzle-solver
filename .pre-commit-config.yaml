@@ -1,0 +1,103 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: detect-private-key
+      - id: debug-statements
+      - id: check-toml
+      - id: check-json
+        exclude: ^\.vscode/  # VS Code settings are JSONC (comments), not strict JSON
+      - id: check-yaml
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: python-check-blanket-type-ignore
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: v2.28.2
+    hooks:
+      - id: pyproject-fmt
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.25
+    hooks:
+      - id: validate-pyproject
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.12.7
+    hooks:
+      - id: uv-lock
+      - id: uv-export
+        args: ["--frozen", "--no-dev", "--output-file=requirements.txt", "--quiet"]
+  - repo: local
+    hooks:
+      # Local hook rather than the packaged pypa/pip-audit hook (which octopus-monitoring
+      # uses): that hook builds an ephemeral venv, which fails on uv's standalone Python
+      # (no working ensurepip). This audits the synced uv environment instead. Requires
+      # uv on PATH and network access to the advisory database; pip-audit is pinned.
+      - id: pip-audit
+        name: pip-audit (uv environment)
+        entry: uv run --with pip-audit==2.10.1 pip-audit --strict
+        language: system
+        pass_filenames: false
+        files: ^(uv\.lock|pyproject\.toml)$
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.3.0
+    hooks:
+      - id: mypy
+  - repo: https://github.com/pycqa/isort
+    rev: 8.0.1
+    hooks:
+      - id: isort
+        name: isort (python)  # --profile black is set in [tool.isort] in pyproject.toml
+  - repo: https://github.com/psf/black
+    rev: 26.5.1
+    hooks:
+      - id: black
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.2
+    hooks:
+      - id: ruff
+        args: [--fix]
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.3
+    hooks:
+      - id: codespell
+        exclude: ^uv\.lock$
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.49.1
+    hooks:
+      - id: markdownlint
+  - repo: https://github.com/tcort/markdown-link-check
+    rev: v3.15.0
+    hooks:
+      - id: markdown-link-check
+        args: ["-q", "-c", ".markdown-link-check.json"]
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.4
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml"]
+        additional_dependencies: ["bandit[toml]"]
+        exclude: ^tests/
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
