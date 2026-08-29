@@ -124,18 +124,18 @@ An observer that renders the search live, wired into `main.py` as the default.
 
 ### Acceptance criteria
 
-- [ ] Solving the real puzzle with a spy observer records only placement and backtrack
+- [x] Solving the real puzzle with a spy observer records only placement and backtrack
       events (both kinds occur), ending with the completed arrangement.
-- [ ] The `ProgressObserver` counters (placed / backtracks / steps) are correct across a
+- [x] The `ProgressObserver` counters (placed / backtracks / steps) are correct across a
       scripted event sequence.
-- [ ] `python main.py` renders a live grid that changes as the search runs and leaves the
+- [x] `python main.py` renders a live grid that changes as the search runs and leaves the
       solved grid on screen.
-- [ ] `python main.py --no-animate` produces no live rendering and still writes
+- [x] `python main.py --no-animate` produces no live rendering and still writes
       `out/solution.json`.
-- [ ] `--delay 0` runs with no inter-event sleep (verified with an injected sleep);
+- [x] `--delay 0` runs with no inter-event sleep (verified with an injected sleep);
       a larger `--delay` slows the animation.
-- [ ] `rich` is declared as a runtime dependency.
-- [ ] The pre-commit suite passes on all changed files.
+- [x] `rich` is declared as a runtime dependency.
+- [x] The pre-commit suite passes on all changed files.
 
 ---
 
