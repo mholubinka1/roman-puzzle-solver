@@ -160,10 +160,10 @@ Bring the glossary and README in line with the rebuilt solver.
 
 ### Acceptance criteria
 
-- [ ] `.agent-docs/context.md` contains no reference to MCMC or `MCMCArranger`.
-- [ ] The `Card` glossary entry does not attribute an orientation to the card itself.
-- [ ] `README.md` documents `python main.py`, all four flags, and the `out/solution.json`
+- [x] `.agent-docs/context.md` contains no reference to MCMC or `MCMCArranger`.
+- [x] The `Card` glossary entry does not attribute an orientation to the card itself.
+- [x] `README.md` documents `python main.py`, all four flags, and the `out/solution.json`
       output location.
-- [ ] The pre-commit suite passes on all changed files.
+- [x] The pre-commit suite passes on all changed files.
 
 ---
