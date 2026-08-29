@@ -11,13 +11,10 @@ class NoArrangementError(Exception):
 
 
 class SearchObserver:
-    """No-op sink for search progress. Slice 3 formalises and renders this."""
+    """No-op sink for search progress. progress.py renders this as a live grid."""
 
     def on_placement(self, x: int, y: int, placement: Placement) -> None:
         """A candidate was accepted into cell (x, y)."""
-
-    def on_reject(self, x: int, y: int, placement: Placement) -> None:
-        """A candidate was rejected from cell (x, y)."""
 
     def on_backtrack(self, x: int, y: int) -> None:
         """Cell (x, y) was vacated and the search stepped back."""
@@ -53,7 +50,6 @@ class Arranger:
             for orientation in _ORIENTATIONS:
                 placement = Placement(card, orientation)
                 if not self._fits(arrangement, x, y, placement):
-                    observer.on_reject(x, y, placement)
                     continue
 
                 observer.on_placement(x, y, placement)

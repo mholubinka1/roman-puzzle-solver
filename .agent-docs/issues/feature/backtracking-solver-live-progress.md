@@ -68,8 +68,8 @@ animation.
   The first full grid is returned. If the space is exhausted, raise a clear
   "no arrangement exists for this card configuration" error.
 - `observer` is accepted but may be `None`; when `None` the search runs silently. The
-  call sites for placement / rejection / backtrack events exist so Slice 3 can attach a
-  real observer without touching the search.
+  call sites for placement and backtrack events exist so Slice 3 can attach a real
+  observer without touching the search.
 - A solution-dict builder turns an arrangement into a JSON object keyed by `"x,y"`
   strings, each value `{"card": <int>, "orientation": <0|90|180|270>}`.
 - `main.py` uses `argparse` with `--config PATH` (default `card_config.json`) and
@@ -104,31 +104,36 @@ animation.
 
 An observer that renders the search live, wired into `main.py` as the default.
 
-- Formalise the observer protocol: methods for an accepted placement, a rejected candidate
-  (card, orientation, cell), and a backtrack (cell vacated). Medium granularity — no
-  per-edge events.
+- Formalise the observer protocol: methods for an accepted placement (card, orientation,
+  cell) and a backtrack (cell vacated). Rejected candidates produce **no** event — on the
+  real puzzle the search rejects ~45,000 candidates vs ~1,700 placements, so rejects are
+  unwatchable and a per-reject sleep makes a run take tens of minutes. ~3,400
+  placement/backtrack events are the signal.
 - `progress.py`: an observer implementation that renders a live 4x3 grid to the terminal
-  with `rich`, redrawing in place on every event. Each cell shows the card number centred
-  with a two-character symbol-type code and half sign (`+` / `-`) on each edge; codes
-  `Ch`, `Bn`, `Sp`, `Sw`, `Dk`, `Lt`, with a one-line legend above the grid. The cell
-  being worked is highlighted. A status line shows cards placed out of 12, backtracks, and
-  total steps. After each event the renderer sleeps for the configured delay in
+  with `rich`. The screen repaints on `rich.Live`'s own ~20fps timer (decoupled from the
+  event rate); the live region is transient and one final grid is printed on completion.
+  Each cell shows the card number centred with a two-character symbol-type code and half
+  sign (`+` / `-`) on each edge (rotated to the placement's orientation); codes `Ch`,
+  `Bn`, `Sp`, `Sw`, `Dk`, `Lt`, with a one-line legend above the grid. The cell being
+  worked is highlighted. A status line shows cards placed out of 12, backtracks, and total
+  steps. After each placement/backtrack the search sleeps for the configured delay in
   milliseconds; `0` disables the sleep. The solved grid is left on screen.
-- `main.py` gains `--delay MS` (default `50`) and `--no-animate`. Animation is on by
+- `main.py` gains `--delay MS` (default `10`) and `--no-animate`. Animation is on by
   default; `--no-animate` solves without constructing or attaching the observer.
 - `rich` is added to `[project].dependencies` in `pyproject.toml`.
 
 ### Acceptance criteria
 
-- [ ] Solving a small hand-built puzzle with a spy observer records at least one accepted
-      placement; a case that forces a dead end also records at least one rejection and at
-      least one backtrack, and the run still ends with the completed arrangement.
+- [ ] Solving the real puzzle with a spy observer records only placement and backtrack
+      events (both kinds occur), ending with the completed arrangement.
+- [ ] The `ProgressObserver` counters (placed / backtracks / steps) are correct across a
+      scripted event sequence.
 - [ ] `python main.py` renders a live grid that changes as the search runs and leaves the
       solved grid on screen.
 - [ ] `python main.py --no-animate` produces no live rendering and still writes
       `out/solution.json`.
-- [ ] `--delay 0` runs with no inter-event sleep; a large `--delay` visibly slows the
-      animation.
+- [ ] `--delay 0` runs with no inter-event sleep (verified with an injected sleep);
+      a larger `--delay` slows the animation.
 - [ ] `rich` is declared as a runtime dependency.
 - [ ] The pre-commit suite passes on all changed files.
 

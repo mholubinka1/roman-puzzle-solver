@@ -13,7 +13,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
 ]
-dependencies = []
+dependencies = [ "rich>=13.7" ]
 
 [dependency-groups]
 dev = [
@@ -36,7 +36,9 @@ package = false
 # and it disagrees with ruff's isort implementation on a couple of groupings, so
 # running both fights over the same job. octopus-monitoring's BLE001 ignore is
 # deliberately not carried over — it is specific to that app's except boundaries.
-lint.ignore = [ "I001" ]
+# PYI034 (flake8-pyi) wants `-> Self` from context-manager `__enter__`, but
+# `typing.Self` needs 3.11 and this project supports 3.10; a forward-ref return is fine.
+lint.ignore = [ "I001", "PYI034" ]
 
 [tool.isort]
 profile = "black"

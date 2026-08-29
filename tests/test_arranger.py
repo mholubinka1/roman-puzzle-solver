@@ -41,16 +41,13 @@ def test_raises_when_no_arrangement_exists():
         Arranger().solve(unmatchable_deck())
 
 
-def test_reports_progress_to_an_observer():
+def test_reports_placements_and_backtracks_to_an_observer():
     class SpyObserver:
         def __init__(self):
             self.events = []
 
         def on_placement(self, x, y, placement):
             self.events.append(("place", x, y))
-
-        def on_reject(self, x, y, placement):
-            self.events.append(("reject", x, y))
 
         def on_backtrack(self, x, y):
             self.events.append(("backtrack", x, y))
@@ -59,4 +56,4 @@ def test_reports_progress_to_an_observer():
     Arranger().solve(load_cards(REAL_CONFIG), observer=spy)
 
     kinds = {kind for kind, _, _ in spy.events}
-    assert {"place", "reject", "backtrack"} <= kinds
+    assert kinds == {"place", "backtrack"}

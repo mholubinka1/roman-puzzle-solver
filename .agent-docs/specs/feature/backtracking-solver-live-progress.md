@@ -17,10 +17,10 @@ Rebuild the card model and the arranger around a depth-first backtracking search
 search is deterministic and complete, so it is guaranteed to find the unique arrangement.
 
 Running `python main.py` loads the twelve cards, searches, and — unless `--no-animate` is
-passed — draws a live 4x3 grid in the terminal that redraws as the search places cards,
-rejects candidates, and backtracks. When the search succeeds the solved grid is left on
-screen, the arrangement is written to `out/solution.json`, and a one-line confirmation
-naming that path is printed.
+passed — draws a live 4x3 grid in the terminal that redraws as the search places cards and
+backtracks off dead ends. When the search succeeds the solved grid is left on screen, the
+arrangement is written to `out/solution.json`, and a one-line confirmation naming that path
+is printed.
 
 ## User Stories
 
@@ -28,9 +28,8 @@ naming that path is printed.
    where it saved the answer, so that I can reproduce the physical solution.
 2. As a puzzle owner, I want the arrangement written to `out/solution.json` keyed by grid
    coordinate, so that I can look up which card and orientation belongs in each position.
-3. As a curious observer, I want to watch a live 4x3 grid in the terminal fill in, flicker
-   through rejected candidates, and collapse back on dead ends, so that I can see how the
-   backtracking search works.
+3. As a curious observer, I want to watch a live 4x3 grid in the terminal fill in and
+   collapse back on dead ends, so that I can see how the backtracking search works.
 4. As an observer, I want a `--delay` control on the animation, so that I can slow the
    search down enough to follow it or run it at full speed when I just want the answer.
 5. As a user on a plain terminal or in a script, I want a `--no-animate` flag, so that I
@@ -115,31 +114,36 @@ value written to `out/solution.json`.
 ### Observer protocol
 
 - `solve` reports progress by calling methods on the `observer` when one is supplied:
-  a placement was accepted, a candidate was rejected (card, orientation, cell), and a
-  backtrack occurred (cell vacated). This is "medium" granularity — accepted placements,
-  rejected candidates, and backtracks all produce an event; per-edge checks do not.
+  a placement was accepted (card, orientation, cell), and a backtrack occurred (cell
+  vacated). Rejected candidates do **not** produce an event: on the real puzzle the search
+  rejects ~45,000 candidates against ~1,700 placements, so rejects are unwatchable noise
+  and a per-reject sleep would make a full run take tens of minutes. Placements and
+  backtracks (~3,400 events) are the legible signal.
 - When `observer` is `None` the search runs silently with no rendering dependency.
-- The observer is a plain protocol/interface; `progress.py` provides one implementation
-  and a logger or test spy could provide others.
+- The observer is a plain base class; `progress.py` provides one implementation and a
+  logger or test spy could provide others.
 
 ### Progress display
 
 - **`progress.py`**: an observer implementation that renders a live 4x3 grid to the
-  terminal using `rich`, redrawing in place on every observer event.
+  terminal using `rich`. The screen repaints on `rich.Live`'s own ~20fps timer, decoupled
+  from the event rate, so render cost does not scale with the number of events. The live
+  region is transient; one final grid is printed on completion.
 - Each cell shows the card number centred, with a two-character symbol-type code and the
-  half sign (`+` / `-`) on each of the four edges. Codes: `Ch`, `Bn`, `Sp`, `Sw`, `Dk`,
-  `Lt`. A one-line legend for those codes sits above the grid.
+  half sign (`+` / `-`) on each of the four edges (rotated to the placement's orientation).
+  Codes: `Ch`, `Bn`, `Sp`, `Sw`, `Dk`, `Lt`. A one-line legend for those codes sits above
+  the grid.
 - The cell currently being worked is highlighted. A status line shows counts:
   cards placed out of 12, backtracks, and total steps.
-- After each event the renderer sleeps for the configured delay (milliseconds) so the
-  animation is watchable; a delay of `0` disables the sleep.
+- After each placement or backtrack the search sleeps for the configured delay
+  (milliseconds) so the animation is watchable; a delay of `0` disables the sleep.
 - On success the solved grid is left on screen.
 
 ### CLI and output
 
 - `main.py` uses `argparse`:
-  - `--delay MS` — per-event animation delay in milliseconds. Default `50`. `0` runs at
-    full speed.
+  - `--delay MS` — delay in milliseconds between placement/backtrack events. Default `10`
+    (a full run is ~30–40s). `0` runs at full speed.
   - `--config PATH` — card config file. Default `card_config.json`.
   - `--out DIR` — output directory. Default `out/`.
   - `--no-animate` — solve without constructing or attaching the progress observer.
@@ -189,9 +193,10 @@ Tests verify external behaviour at the seams agreed with the user; internals of 
   error.
 - **Solution-dict builder**: a known small arrangement serialises to the expected
   `{"x,y": {"card", "orientation"}}` shape with `(0,0)` top-left and column-first keys.
-- **Observer protocol**: solving a tiny hand-constructed puzzle with a spy observer
-  records at least one accepted placement and, for a case that forces a dead end, at least
-  one rejection and one backtrack, ending in the completed arrangement.
+- **Observer protocol**: solving the real puzzle with a spy observer records only
+  placement and backtrack events (both kinds occur), ending in the completed arrangement.
+  The `ProgressObserver` counters (placed / backtracks / steps) track a scripted event
+  sequence, and its `--delay` throttle is verified with an injected sleep.
 - Coverage is enforced at >= 80% (`.agent-docs/agent.md` section 3), measured with
   `pytest-cov`. `progress.py` is expected to be largely uncovered and that is acceptable;
   the coverage target is met by the model, loader, arranger, and output code.

@@ -23,7 +23,9 @@ def _unsolvable_config_file(tmp_path):
 def test_main_writes_the_solution_file_and_reports_where(tmp_path, capsys):
     out_dir = tmp_path / "out"
 
-    exit_code = main.main(["--config", REAL_CONFIG, "--out", str(out_dir)])
+    exit_code = main.main(
+        ["--no-animate", "--config", REAL_CONFIG, "--out", str(out_dir)]
+    )
 
     assert exit_code == 0
     solution = json.loads((out_dir / "solution.json").read_text())
@@ -35,8 +37,39 @@ def test_main_exits_nonzero_and_writes_nothing_when_unsolvable(tmp_path):
     out_dir = tmp_path / "out"
 
     exit_code = main.main(
-        ["--config", _unsolvable_config_file(tmp_path), "--out", str(out_dir)]
+        [
+            "--no-animate",
+            "--config",
+            _unsolvable_config_file(tmp_path),
+            "--out",
+            str(out_dir),
+        ]
     )
 
     assert exit_code == 1
     assert not out_dir.exists()
+
+
+def test_no_animate_solves_without_drawing_a_grid(tmp_path, capsys):
+    out_dir = tmp_path / "out"
+
+    exit_code = main.main(
+        ["--no-animate", "--config", REAL_CONFIG, "--out", str(out_dir)]
+    )
+
+    assert exit_code == 0
+    assert (out_dir / "solution.json").exists()
+    out = capsys.readouterr().out
+    assert "Chariot" not in out  # no legend, no grid
+
+
+def test_the_animated_run_draws_the_grid(tmp_path, capsys):
+    out_dir = tmp_path / "out"
+
+    exit_code = main.main(
+        ["--config", REAL_CONFIG, "--out", str(out_dir), "--delay", "0"]
+    )
+
+    assert exit_code == 0
+    assert (out_dir / "solution.json").exists()
+    assert "Chariot" in capsys.readouterr().out  # legend rendered
