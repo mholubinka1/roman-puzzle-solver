@@ -80,6 +80,15 @@ def test_rejects_an_unknown_symbol_name(tmp_path):
         load_cards(_config_file(tmp_path, config))
 
 
+@pytest.mark.parametrize("bad_symbol", [None, 7, ["chariot"]])
+def test_rejects_a_symbol_that_is_not_a_string(tmp_path, bad_symbol):
+    config = _twelve_valid_cards()
+    config["5"]["sides"][0]["symbol"] = bad_symbol
+
+    with pytest.raises(CardConfigError):
+        load_cards(_config_file(tmp_path, config))
+
+
 def test_rejects_a_half_that_is_not_plus_or_minus_one(tmp_path):
     config = _twelve_valid_cards()
     config["5"]["sides"][0]["half"] = "0"

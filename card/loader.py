@@ -62,7 +62,7 @@ def _build_card(number: int, spec: object) -> Card:
             )
         try:
             symbol_type = to_symbol_type(side["symbol"])
-        except KeyError:
+        except (KeyError, AttributeError):
             raise CardConfigError(
                 f"card {number} side {side_id}: unknown symbol {side['symbol']!r}"
             ) from None
