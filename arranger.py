@@ -65,8 +65,8 @@ class Arranger:
     def _fits(
         self, arrangement: Arrangement, x: int, y: int, placement: Placement
     ) -> bool:
-        left = arrangement.placement_at(x - 1, y) if x > 0 else None
-        above = arrangement.placement_at(x, y - 1) if y > 0 else None
+        left = arrangement.placement_at(x - 1, y)
+        above = arrangement.placement_at(x, y - 1)
         left_edge = left.symbol_at(Side.RIGHT) if left else None
         top_edge = above.symbol_at(Side.BOTTOM) if above else None
 

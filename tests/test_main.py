@@ -102,3 +102,15 @@ def test_a_malformed_config_file_exits_cleanly(tmp_path, capsys):
     assert exit_code == 1
     assert "could not load" in capsys.readouterr().err
     assert not out_dir.exists()
+
+
+def test_an_unwritable_output_location_exits_cleanly(tmp_path, capsys, real_config):
+    blocking_file = tmp_path / "out"
+    blocking_file.write_text("i am a file, not a directory")
+
+    exit_code = main.main(
+        ["--no-animate", "--config", real_config, "--out", str(blocking_file)]
+    )
+
+    assert exit_code == 1
+    assert "could not write" in capsys.readouterr().err
