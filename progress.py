@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable, Mapping
+from typing import NamedTuple
 
 from rich.console import Console, Group, RenderableType
 from rich.live import Live
@@ -14,35 +15,34 @@ from card.card import Symbol
 from card.side import Side
 from card.symbol_type import SymbolType
 
-SYMBOL_CODES = {
-    SymbolType.CHARIOT: "Ch",
-    SymbolType.BANNER: "Bn",
-    SymbolType.SPEARMAN: "Sp",
-    SymbolType.SWORDSMAN: "Sw",
-    SymbolType.DARKCOIN: "Dk",
-    SymbolType.LIGHTCOIN: "Lt",
+# Two-letter grid code and legend name for each symbol type. Names match the
+# glossary in .agent-docs/context.md.
+_SYMBOLS = {
+    SymbolType.CHARIOT: ("Ch", "Chariot"),
+    SymbolType.BANNER: ("Bn", "Banner"),
+    SymbolType.SPEARMAN: ("Sp", "Spearman"),
+    SymbolType.SWORDSMAN: ("Sw", "Swordsman"),
+    SymbolType.DARKCOIN: ("Dk", "Dark Coin"),
+    SymbolType.LIGHTCOIN: ("Lt", "Light Coin"),
 }
 
-# Display names match the glossary in .agent-docs/context.md.
-_SYMBOL_NAMES = {
-    SymbolType.CHARIOT: "Chariot",
-    SymbolType.BANNER: "Banner",
-    SymbolType.SPEARMAN: "Spearman",
-    SymbolType.SWORDSMAN: "Swordsman",
-    SymbolType.DARKCOIN: "Dark Coin",
-    SymbolType.LIGHTCOIN: "Light Coin",
-}
-
-_LEGEND = "  ".join(
-    f"{code} {_SYMBOL_NAMES[kind]}" for kind, code in SYMBOL_CODES.items()
-)
+_LEGEND = "  ".join(f"{code} {name}" for code, name in _SYMBOLS.values())
 
 Cell = tuple[int, int]
 
 
+class Counts(NamedTuple):
+    """The running search tallies shown on the status line."""
+
+    placed: int
+    backtracks: int
+    steps: int
+
+
 def symbol_label(symbol: Symbol) -> str:
+    code, _name = _SYMBOLS[symbol.type]
     sign = "+" if symbol.half == 1 else "-"
-    return f"{SYMBOL_CODES[symbol.type]}{sign}"
+    return f"{code}{sign}"
 
 
 def format_cell(placement: Placement) -> str:
@@ -62,11 +62,7 @@ def format_cell(placement: Placement) -> str:
 
 
 def render(
-    cells: Mapping[Cell, Placement],
-    current: Cell | None,
-    placed: int,
-    backtracks: int,
-    steps: int,
+    cells: Mapping[Cell, Placement], current: Cell | None, counts: Counts
 ) -> RenderableType:
     grid = Table.grid(padding=(0, 1))
     for _ in range(COLS):
@@ -79,7 +75,10 @@ def render(
             style = "reverse" if (x, y) == current else ""
             row.append(Text(text, style=style))
         grid.add_row(*row)
-    stats = f"placed {placed}/{CELL_COUNT} · backtracks {backtracks} · steps {steps}"
+    stats = (
+        f"placed {counts.placed}/{CELL_COUNT} · "
+        f"backtracks {counts.backtracks} · steps {counts.steps}"
+    )
     return Group(Text(_LEGEND, style="dim"), grid, Text(stats))
 
 
@@ -115,9 +114,8 @@ class ProgressObserver(SearchObserver):
         self.steps = 0
 
     def __rich__(self) -> RenderableType:
-        return render(
-            self._cells, self._current, self.placed, self.backtracks, self.steps
-        )
+        counts = Counts(self.placed, self.backtracks, self.steps)
+        return render(self._cells, self._current, counts)
 
     def __enter__(self) -> ProgressObserver:
         self._live.start()

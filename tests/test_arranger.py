@@ -1,10 +1,8 @@
 import pytest
 
 from arranger import Arranger, NoArrangementError
-from card.card import Card, Symbol
 from card.loader import load_cards
 from card.side import Side
-from card.symbol_type import SymbolType
 
 
 def assert_internally_consistent(arrangement):
@@ -20,13 +18,6 @@ def assert_internally_consistent(arrangement):
     assert sorted(numbers) == list(range(1, 13))
 
 
-def unmatchable_deck():
-    return [
-        Card.from_sides(number, {side: Symbol(SymbolType.CHARIOT, 1) for side in Side})
-        for number in range(1, 13)
-    ]
-
-
 def test_solves_the_real_puzzle(real_config):
     arrangement = Arranger().solve(load_cards(real_config))
 
@@ -34,9 +25,9 @@ def test_solves_the_real_puzzle(real_config):
     assert_internally_consistent(arrangement)
 
 
-def test_raises_when_no_arrangement_exists():
+def test_raises_when_no_arrangement_exists(unmatchable_deck):
     with pytest.raises(NoArrangementError):
-        Arranger().solve(unmatchable_deck())
+        Arranger().solve(unmatchable_deck)
 
 
 def test_reports_placements_and_backtracks_to_an_observer(real_config):

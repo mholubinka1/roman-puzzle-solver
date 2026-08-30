@@ -22,10 +22,10 @@ backtracked. Flags:
 
 | Flag | Default | Meaning |
 | --- | --- | --- |
-| `--delay MS` | `10` | milliseconds paused between placement/backtrack steps; `0` runs at full speed |
-| `--no-animate` | off | solve without the live grid |
 | `--config PATH` | `card_config.json` | card configuration file |
 | `--out DIR` | `out` | directory for `solution.json` |
+| `--delay MS` | `10` | milliseconds paused between placement/backtrack steps; `0` runs at full speed |
+| `--no-animate` | off | solve without the live grid |
 
 ## Development
 

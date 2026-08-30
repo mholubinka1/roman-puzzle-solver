@@ -144,12 +144,14 @@ value written to `out/solution.json`.
 
 ### CLI and output
 
-- `main.py` uses `argparse`:
-  - `--delay MS` — delay in milliseconds between placement/backtrack events. Default `10`
-    (a full run is ~30–40s). `0` runs at full speed.
+- `main.py` uses `argparse`, with the flags declared in this order:
   - `--config PATH` — card config file. Default `card_config.json`.
   - `--out DIR` — output directory. Default `out/`.
+  - `--delay MS` — delay in milliseconds between placement/backtrack events. Default `10`
+    (a full run is ~30–40s). `0` runs at full speed. A negative value is rejected.
   - `--no-animate` — solve without constructing or attaching the progress observer.
+- A bad `--config` (missing file, unreadable, invalid JSON, or structurally invalid)
+  prints a clear message to stderr and exits non-zero — never a traceback.
 - On success `main.py` writes `<out>/solution.json` and prints a single confirmation line
   naming that path.
 - `out/solution.json` is a JSON object keyed by `"x,y"` strings (`x` column `0..3`,

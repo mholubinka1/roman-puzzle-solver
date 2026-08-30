@@ -37,3 +37,13 @@ def make_card(
         return Card.from_sides(number, chosen)
 
     return _make
+
+
+@pytest.fixture
+def unmatchable_deck() -> list[Card]:
+    """Twelve cards whose every edge is the same symbol, so nothing ever matches."""
+    same = Symbol(SymbolType.CHARIOT, 1)
+    return [
+        Card.from_sides(number, {side: same for side in Side})
+        for number in range(1, 13)
+    ]

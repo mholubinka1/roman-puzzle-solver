@@ -32,6 +32,8 @@ class Arrangement:
         return self.cells[y * COLS + x]
 
     def with_placement(self, x: int, y: int, placement: Placement) -> "Arrangement":
+        if not (0 <= x < COLS and 0 <= y < ROWS):
+            raise IndexError(f"cell ({x}, {y}) is outside the {COLS}x{ROWS} grid")
         updated = list(self.cells)
         updated[y * COLS + x] = placement
         return Arrangement(tuple(updated))

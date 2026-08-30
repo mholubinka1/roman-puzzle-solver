@@ -65,7 +65,8 @@ _Avoid_: Card data, deck file, puzzle input
 The component that searches for the arrangement. It fills the grid cell by cell in
 row-major order by depth-first backtracking: at each cell it tries every unused card at
 every orientation, keeps the ones whose edges match the placed neighbours, and backs out
-of dead ends. The search is exhaustive, so it always finds the one arrangement.
+of dead ends. The search is exhaustive: it finds the arrangement when one exists, and
+reports that none does otherwise.
 _Avoid_: Solver, engine, searcher
 
 **Observer**:

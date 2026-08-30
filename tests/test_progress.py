@@ -5,7 +5,7 @@ from rich.console import Console
 
 from arrangement import Placement
 from arranger import Arranger, NoArrangementError
-from card.card import Card, Symbol
+from card.card import Symbol
 from card.loader import load_cards
 from card.side import Side
 from card.symbol_type import SymbolType
@@ -94,13 +94,9 @@ def test_a_real_solve_renders_the_legend_grid_and_stats_and_leaves_the_result(
     assert "steps" in output
 
 
-def test_a_failed_search_leaves_no_grid_on_screen():
+def test_a_failed_search_leaves_no_grid_on_screen(unmatchable_deck):
     buffer = io.StringIO()
     console = Console(file=buffer, force_terminal=False, width=120)
-    deck = [
-        Card.from_sides(n, {side: Symbol(SymbolType.CHARIOT, 1) for side in Side})
-        for n in range(1, 13)
-    ]
 
     with (
         pytest.raises(NoArrangementError),
@@ -108,6 +104,6 @@ def test_a_failed_search_leaves_no_grid_on_screen():
             delay_ms=0, console=console, sleep=lambda _s: None
         ) as observer,
     ):
-        Arranger().solve(deck, observer=observer)
+        Arranger().solve(unmatchable_deck, observer=observer)
 
     assert "placed" not in buffer.getvalue()

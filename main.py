@@ -73,7 +73,9 @@ def main(argv: list[str] | None = None) -> int:
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     solution_path = out_dir / "solution.json"
-    solution_path.write_text(json.dumps(to_solution_dict(arrangement), indent=2) + "\n")
+    solution_path.write_text(
+        json.dumps(to_solution_dict(arrangement), indent=2) + "\n", encoding="utf-8"
+    )
     print(f"Solved. Arrangement written to {solution_path}")
     return 0
 
