@@ -46,3 +46,23 @@ def test_reports_placements_and_backtracks_to_an_observer(real_config):
 
     kinds = {kind for kind, _, _ in spy.events}
     assert kinds == {"place", "backtrack"}
+
+
+def test_a_falsy_observer_is_still_used(real_config):
+    class FalsyObserver:
+        def __len__(self):  # makes the object falsy
+            return 0
+
+        def __init__(self):
+            self.seen = 0
+
+        def on_placement(self, x, y, placement):
+            self.seen += 1
+
+        def on_backtrack(self, x, y):
+            self.seen += 1
+
+    observer = FalsyObserver()
+    Arranger().solve(load_cards(real_config), observer=observer)
+
+    assert observer.seen > 0

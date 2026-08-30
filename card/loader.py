@@ -35,7 +35,8 @@ def load_cards(config_path: str) -> list[Card]:
         except (TypeError, ValueError):
             raise CardConfigError(f"card key {key!r} is not a number") from None
         cards.append(_build_card(number, spec))
-    return cards
+    # Ascending by card number, so the result does not depend on JSON key order.
+    return sorted(cards, key=lambda card: card.number)
 
 
 def _build_card(number: int, spec: object) -> Card:

@@ -54,6 +54,11 @@ def test_a_backtrack_on_an_empty_cell_does_not_drive_placed_negative():
     assert observer.backtracks == 1
 
 
+def test_a_negative_delay_is_rejected():
+    with pytest.raises(ValueError):
+        ProgressObserver(delay_ms=-1)
+
+
 def test_progress_observer_throttles_by_the_configured_delay(make_card):
     slept = []
     console = Console(file=io.StringIO(), force_terminal=False)

@@ -97,6 +97,8 @@ class ProgressObserver(SearchObserver):
         console: Console | None = None,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
+        if delay_ms < 0:
+            raise ValueError(f"delay_ms must be zero or greater, got {delay_ms}")
         self._delay = delay_ms / 1000
         self._sleep = sleep
         self._console = console or Console()

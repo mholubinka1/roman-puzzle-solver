@@ -26,7 +26,7 @@ class Arranger:
     def solve(
         self, cards: list[Card], observer: SearchObserver | None = None
     ) -> Arrangement:
-        observer = observer or SearchObserver()
+        observer = SearchObserver() if observer is None else observer
         ordered = sorted(cards, key=lambda card: card.number)
         result = self._search(Arrangement(), 0, ordered, observer)
         if result is None:

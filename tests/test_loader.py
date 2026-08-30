@@ -48,6 +48,14 @@ def test_a_valid_generated_config_loads(tmp_path):
     assert len(cards) == 12
 
 
+def test_cards_come_back_ascending_by_number_regardless_of_key_order(tmp_path):
+    shuffled = dict(reversed(list(_twelve_valid_cards().items())))
+
+    cards = load_cards(_config_file(tmp_path, shuffled))
+
+    assert [card.number for card in cards] == list(range(1, 13))
+
+
 def test_rejects_a_config_without_exactly_twelve_cards(tmp_path):
     eleven = _twelve_valid_cards()
     del eleven["12"]
