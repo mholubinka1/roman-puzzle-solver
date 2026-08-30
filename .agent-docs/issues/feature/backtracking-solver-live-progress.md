@@ -1,5 +1,7 @@
 # Issues: feature/backtracking-solver-live-progress
 
+> Work complete — PR ready to merge.
+
 ## Slice 1 — Card model and loader with validation
 
 **Blocked by**: None
