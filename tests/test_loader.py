@@ -7,8 +7,6 @@ from card.loader import CardConfigError, load_cards
 from card.side import Side
 from card.symbol_type import SymbolType
 
-REAL_CONFIG = "card_config.json"
-
 
 def _sides(top="chariot", right="banner", bottom="spearMan", left="swordsMan"):
     return [
@@ -19,9 +17,9 @@ def _sides(top="chariot", right="banner", bottom="spearMan", left="swordsMan"):
     ]
 
 
-def _config_file(tmp_path, cards):
+def _config_file(tmp_path, contents):
     path = tmp_path / "config.json"
-    path.write_text(json.dumps(cards))
+    path.write_text(json.dumps(contents))
     return str(path)
 
 
@@ -29,14 +27,14 @@ def _twelve_valid_cards():
     return {str(number): {"sides": _sides()} for number in range(1, 13)}
 
 
-def test_loads_all_twelve_cards_from_the_real_config():
-    cards = load_cards(REAL_CONFIG)
+def test_loads_all_twelve_cards_from_the_real_config(real_config):
+    cards = load_cards(real_config)
 
     assert [card.number for card in cards] == list(range(1, 13))
 
 
-def test_a_loaded_card_carries_the_symbols_from_the_config():
-    card_one = load_cards(REAL_CONFIG)[0]
+def test_a_loaded_card_carries_the_symbols_from_the_config(real_config):
+    card_one = load_cards(real_config)[0]
 
     assert card_one.symbol_at(Side.TOP) == Symbol(SymbolType.LIGHTCOIN, -1)
     assert card_one.symbol_at(Side.RIGHT) == Symbol(SymbolType.SPEARMAN, -1)
@@ -85,6 +83,59 @@ def test_rejects_an_unknown_symbol_name(tmp_path):
 def test_rejects_a_half_that_is_not_plus_or_minus_one(tmp_path):
     config = _twelve_valid_cards()
     config["5"]["sides"][0]["half"] = "0"
+
+    with pytest.raises(CardConfigError):
+        load_cards(_config_file(tmp_path, config))
+
+
+def test_rejects_a_side_with_no_id(tmp_path):
+    config = _twelve_valid_cards()
+    del config["5"]["sides"][0]["id"]
+
+    with pytest.raises(CardConfigError):
+        load_cards(_config_file(tmp_path, config))
+
+
+def test_rejects_a_side_missing_its_symbol_or_half(tmp_path):
+    config = _twelve_valid_cards()
+    del config["5"]["sides"][0]["symbol"]
+
+    with pytest.raises(CardConfigError):
+        load_cards(_config_file(tmp_path, config))
+
+
+def test_rejects_a_half_that_is_not_a_number(tmp_path):
+    config = _twelve_valid_cards()
+    config["5"]["sides"][0]["half"] = "east"
+
+    with pytest.raises(CardConfigError):
+        load_cards(_config_file(tmp_path, config))
+
+
+def test_rejects_a_non_numeric_card_key(tmp_path):
+    config = _twelve_valid_cards()
+    config["oops"] = config.pop("12")
+
+    with pytest.raises(CardConfigError):
+        load_cards(_config_file(tmp_path, config))
+
+
+def test_rejects_a_top_level_json_array(tmp_path):
+    with pytest.raises(CardConfigError):
+        load_cards(_config_file(tmp_path, [{"sides": _sides()}]))
+
+
+def test_rejects_a_card_that_is_not_an_object(tmp_path):
+    config = _twelve_valid_cards()
+    config["5"] = "not a card"
+
+    with pytest.raises(CardConfigError):
+        load_cards(_config_file(tmp_path, config))
+
+
+def test_rejects_a_card_with_no_sides_list(tmp_path):
+    config = _twelve_valid_cards()
+    config["5"] = {}
 
     with pytest.raises(CardConfigError):
         load_cards(_config_file(tmp_path, config))

@@ -1,8 +1,8 @@
 import json
 
-import main
+import pytest
 
-REAL_CONFIG = "card_config.json"
+import main
 
 
 def _unsolvable_config_file(tmp_path):
@@ -20,11 +20,11 @@ def _unsolvable_config_file(tmp_path):
     return str(path)
 
 
-def test_main_writes_the_solution_file_and_reports_where(tmp_path, capsys):
+def test_main_writes_the_solution_file_and_reports_where(tmp_path, capsys, real_config):
     out_dir = tmp_path / "out"
 
     exit_code = main.main(
-        ["--no-animate", "--config", REAL_CONFIG, "--out", str(out_dir)]
+        ["--no-animate", "--config", real_config, "--out", str(out_dir)]
     )
 
     assert exit_code == 0
@@ -50,11 +50,11 @@ def test_main_exits_nonzero_and_writes_nothing_when_unsolvable(tmp_path):
     assert not out_dir.exists()
 
 
-def test_no_animate_solves_without_drawing_a_grid(tmp_path, capsys):
+def test_no_animate_solves_without_drawing_a_grid(tmp_path, capsys, real_config):
     out_dir = tmp_path / "out"
 
     exit_code = main.main(
-        ["--no-animate", "--config", REAL_CONFIG, "--out", str(out_dir)]
+        ["--no-animate", "--config", real_config, "--out", str(out_dir)]
     )
 
     assert exit_code == 0
@@ -63,13 +63,18 @@ def test_no_animate_solves_without_drawing_a_grid(tmp_path, capsys):
     assert "Chariot" not in out  # no legend, no grid
 
 
-def test_the_animated_run_draws_the_grid(tmp_path, capsys):
+def test_the_animated_run_draws_the_grid(tmp_path, capsys, real_config):
     out_dir = tmp_path / "out"
 
     exit_code = main.main(
-        ["--config", REAL_CONFIG, "--out", str(out_dir), "--delay", "0"]
+        ["--config", real_config, "--out", str(out_dir), "--delay", "0"]
     )
 
     assert exit_code == 0
     assert (out_dir / "solution.json").exists()
     assert "Chariot" in capsys.readouterr().out  # legend rendered
+
+
+def test_a_negative_delay_is_rejected(tmp_path, real_config):
+    with pytest.raises(SystemExit):
+        main.main(["--config", real_config, "--out", str(tmp_path), "--delay", "-5"])

@@ -23,8 +23,18 @@ SYMBOL_CODES = {
     SymbolType.LIGHTCOIN: "Lt",
 }
 
+# Display names match the glossary in .agent-docs/context.md.
+_SYMBOL_NAMES = {
+    SymbolType.CHARIOT: "Chariot",
+    SymbolType.BANNER: "Banner",
+    SymbolType.SPEARMAN: "Spearman",
+    SymbolType.SWORDSMAN: "Swordsman",
+    SymbolType.DARKCOIN: "Dark Coin",
+    SymbolType.LIGHTCOIN: "Light Coin",
+}
+
 _LEGEND = "  ".join(
-    f"{code} {kind.name.title()}" for kind, code in SYMBOL_CODES.items()
+    f"{code} {_SYMBOL_NAMES[kind]}" for kind, code in SYMBOL_CODES.items()
 )
 
 Cell = tuple[int, int]
@@ -113,10 +123,12 @@ class ProgressObserver(SearchObserver):
         self._live.start()
         return self
 
-    def __exit__(self, *exc: object) -> None:
+    def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
         self._current = None
         self._live.stop()
-        self._console.print(self.__rich__())
+        if exc_type is None:
+            # Leave one clean grid on screen; on a failed search main() reports why.
+            self._console.print(self.__rich__())
 
     def on_placement(self, x: int, y: int, placement: Placement) -> None:
         self._cells[(x, y)] = placement
@@ -124,8 +136,8 @@ class ProgressObserver(SearchObserver):
         self._tick((x, y))
 
     def on_backtrack(self, x: int, y: int) -> None:
-        self._cells.pop((x, y), None)
-        self.placed -= 1
+        if self._cells.pop((x, y), None) is not None:
+            self.placed -= 1
         self.backtracks += 1
         self._tick((x, y))
 

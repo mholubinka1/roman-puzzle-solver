@@ -62,3 +62,8 @@ no_implicit_optional = true
 [tool.pytest]
 ini_options.testpaths = [ "tests" ]
 ini_options.pythonpath = [ "." ]
+ini_options.addopts = "--cov --cov-report=term-missing --cov-fail-under=80"
+
+[tool.coverage]
+run.source = [ "." ]
+run.omit = [ "tests/*" ]

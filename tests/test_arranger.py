@@ -6,8 +6,6 @@ from card.loader import load_cards
 from card.side import Side
 from card.symbol_type import SymbolType
 
-REAL_CONFIG = "card_config.json"
-
 
 def assert_internally_consistent(arrangement):
     numbers = []
@@ -29,8 +27,8 @@ def unmatchable_deck():
     ]
 
 
-def test_solves_the_real_puzzle():
-    arrangement = Arranger().solve(load_cards(REAL_CONFIG))
+def test_solves_the_real_puzzle(real_config):
+    arrangement = Arranger().solve(load_cards(real_config))
 
     assert arrangement.is_complete()
     assert_internally_consistent(arrangement)
@@ -41,7 +39,7 @@ def test_raises_when_no_arrangement_exists():
         Arranger().solve(unmatchable_deck())
 
 
-def test_reports_placements_and_backtracks_to_an_observer():
+def test_reports_placements_and_backtracks_to_an_observer(real_config):
     class SpyObserver:
         def __init__(self):
             self.events = []
@@ -53,7 +51,7 @@ def test_reports_placements_and_backtracks_to_an_observer():
             self.events.append(("backtrack", x, y))
 
     spy = SpyObserver()
-    Arranger().solve(load_cards(REAL_CONFIG), observer=spy)
+    Arranger().solve(load_cards(real_config), observer=spy)
 
     kinds = {kind for kind, _, _ in spy.events}
     assert kinds == {"place", "backtrack"}

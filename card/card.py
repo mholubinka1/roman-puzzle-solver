@@ -5,7 +5,8 @@ from card.side import Side
 from card.symbol_type import SymbolType
 
 _CLOCKWISE = (Side.TOP, Side.RIGHT, Side.BOTTOM, Side.LEFT)
-_ORIENTATIONS = (0, 90, 180, 270)
+_QUARTER_TURN = 90
+_ORIENTATIONS = (0, _QUARTER_TURN, 2 * _QUARTER_TURN, 3 * _QUARTER_TURN)
 
 
 @dataclass(frozen=True)
@@ -48,5 +49,5 @@ class Card:
             raise ValueError(
                 f"orientation must be one of {_ORIENTATIONS}, got {orientation}"
             )
-        steps = orientation // 90
-        return self.symbols[(side - steps) % 4]
+        steps = orientation // _QUARTER_TURN
+        return self.symbols[(side - steps) % len(_CLOCKWISE)]

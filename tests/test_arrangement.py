@@ -1,14 +1,4 @@
 from arrangement import Arrangement, Placement, to_solution_dict
-from card.card import Card, Symbol
-from card.side import Side
-from card.symbol_type import SymbolType
-
-
-def a_card(number: int = 1) -> Card:
-    return Card.from_sides(
-        number,
-        {side: Symbol(SymbolType.CHARIOT, 1) for side in Side},
-    )
 
 
 def test_a_new_arrangement_has_no_placements():
@@ -18,9 +8,9 @@ def test_a_new_arrangement_has_no_placements():
     assert not arrangement.is_complete()
 
 
-def test_with_placement_records_a_placement_without_changing_the_original():
+def test_with_placement_records_a_placement_without_changing_the_original(make_card):
     empty = Arrangement()
-    placement = Placement(a_card(7), 90)
+    placement = Placement(make_card(7), 90)
 
     filled = empty.with_placement(2, 1, placement)
 
@@ -28,18 +18,18 @@ def test_with_placement_records_a_placement_without_changing_the_original():
     assert empty.placement_at(2, 1) is None
 
 
-def test_an_arrangement_is_complete_once_every_cell_is_filled():
+def test_an_arrangement_is_complete_once_every_cell_is_filled(make_card):
     arrangement = Arrangement()
     for y in range(3):
         for x in range(4):
-            arrangement = arrangement.with_placement(x, y, Placement(a_card(), 0))
+            arrangement = arrangement.with_placement(x, y, Placement(make_card(), 0))
 
     assert arrangement.is_complete()
 
 
-def test_to_solution_dict_keys_cells_by_coordinate_from_the_top_left():
-    arrangement = Arrangement().with_placement(0, 0, Placement(a_card(3), 0))
-    arrangement = arrangement.with_placement(3, 2, Placement(a_card(11), 270))
+def test_to_solution_dict_keys_cells_by_coordinate_from_the_top_left(make_card):
+    arrangement = Arrangement().with_placement(0, 0, Placement(make_card(3), 0))
+    arrangement = arrangement.with_placement(3, 2, Placement(make_card(11), 270))
 
     solution = to_solution_dict(arrangement)
 

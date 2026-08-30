@@ -1,17 +1,24 @@
 import argparse
 import json
 import sys
-from contextlib import nullcontext
 from pathlib import Path
 
-from arrangement import to_solution_dict
+from arrangement import Arrangement, to_solution_dict
 from arranger import Arranger, NoArrangementError
+from card.card import Card
 from card.loader import load_cards
 from progress import ProgressObserver
 
 DEFAULT_CONFIG = "card_config.json"
 DEFAULT_OUT_DIR = "out"
 DEFAULT_DELAY_MS = 10
+
+
+def _non_negative_int(value: str) -> int:
+    number = int(value)
+    if number < 0:
+        raise argparse.ArgumentTypeError(f"must be zero or greater, got {number}")
+    return number
 
 
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:
@@ -28,9 +35,10 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--delay",
-        type=int,
+        type=_non_negative_int,
         default=DEFAULT_DELAY_MS,
-        help=f"ms between animation frames, 0 for full speed (default: {DEFAULT_DELAY_MS})",
+        metavar="MS",
+        help=f"ms paused between search steps, 0 for full speed (default: {DEFAULT_DELAY_MS})",
     )
     parser.add_argument(
         "--no-animate",
@@ -40,16 +48,19 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _search(cards: list[Card], *, animate: bool, delay_ms: int) -> Arrangement:
+    if not animate:
+        return Arranger().solve(cards)
+    with ProgressObserver(delay_ms=delay_ms) as observer:
+        return Arranger().solve(cards, observer=observer)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     cards = load_cards(args.config)
 
-    observer_context = (
-        nullcontext(None) if args.no_animate else ProgressObserver(delay_ms=args.delay)
-    )
     try:
-        with observer_context as observer:
-            arrangement = Arranger().solve(cards, observer=observer)
+        arrangement = _search(cards, animate=not args.no_animate, delay_ms=args.delay)
     except NoArrangementError as error:
         print(error, file=sys.stderr)
         return 1

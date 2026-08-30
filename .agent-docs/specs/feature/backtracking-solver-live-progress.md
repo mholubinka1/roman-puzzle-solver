@@ -182,10 +182,12 @@ Tests verify external behaviour at the seams agreed with the user; internals of 
   every `(side, orientation)` pair returns the expected canonical symbol, covering all
   four orientations and confirming the clockwise convention.
 - **`load_cards(path)`** (`card/loader.py`): a valid config yields 12 `Card` objects with
-  the expected numbers and canonical symbols. Separate malformed fixtures — wrong card
-  count, a card missing a side, a duplicated side id, an unknown symbol name, a half that
-  is not `1` or `-1` — each raise. Prior art: the existing `load_cards` reads
-  `card_config.json`; fixtures live beside the tests.
+  the expected numbers and canonical symbols. Malformed configs each raise
+  `CardConfigError` (never a bare `KeyError`/`TypeError`): wrong card count, a card missing
+  a side, a duplicated side id, a side with no `id`, a side missing its `symbol` or `half`,
+  an unknown symbol name, a half that is not `1`/`-1` or not a number, a non-numeric card
+  key, a card that is not an object, a card with no `sides` list, and a top-level JSON
+  array. Fixtures are built inline with `tmp_path`.
 - **`Arranger.solve(cards)`** — the acceptance test: run against the real
   `card_config.json` with no observer and independently verify the returned arrangement —
   every interior edge (horizontal and vertical) is a match, and each card number `1..12`
