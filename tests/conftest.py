@@ -33,6 +33,7 @@ def make_card(
     """Factory for a Card; defaults to the canonical distinct-symbol layout."""
 
     def _make(number: int = 1, symbols: Mapping[Side, Symbol] | None = None) -> Card:
-        return Card.from_sides(number, symbols or canonical_symbols)
+        chosen = canonical_symbols if symbols is None else symbols
+        return Card.from_sides(number, chosen)
 
     return _make

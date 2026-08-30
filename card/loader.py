@@ -1,5 +1,4 @@
 import json
-from typing import Any
 
 from card.card import Card, Symbol
 from card.side import to_side
@@ -14,8 +13,13 @@ class CardConfigError(ValueError):
 
 
 def load_cards(config_path: str) -> list[Card]:
-    with open(config_path) as config_file:
-        raw = json.load(config_file)
+    with open(config_path, encoding="utf-8") as config_file:
+        try:
+            raw = json.load(config_file)
+        except json.JSONDecodeError as error:
+            raise CardConfigError(
+                f"{config_path} is not valid JSON: {error}"
+            ) from error
 
     if not isinstance(raw, dict):
         raise CardConfigError(
@@ -34,7 +38,7 @@ def load_cards(config_path: str) -> list[Card]:
     return cards
 
 
-def _build_card(number: int, spec: Any) -> Card:
+def _build_card(number: int, spec: object) -> Card:
     if not isinstance(spec, dict):
         raise CardConfigError(f"card {number}: expected an object, got {spec!r}")
 

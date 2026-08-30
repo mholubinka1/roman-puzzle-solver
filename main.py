@@ -6,7 +6,7 @@ from pathlib import Path
 from arrangement import Arrangement, to_solution_dict
 from arranger import Arranger, NoArrangementError
 from card.card import Card
-from card.loader import load_cards
+from card.loader import CardConfigError, load_cards
 from progress import ProgressObserver
 
 DEFAULT_CONFIG = "card_config.json"
@@ -57,7 +57,12 @@ def _search(cards: list[Card], *, animate: bool, delay_ms: int) -> Arrangement:
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
-    cards = load_cards(args.config)
+
+    try:
+        cards = load_cards(args.config)
+    except (CardConfigError, OSError) as error:
+        print(f"could not load {args.config}: {error}", file=sys.stderr)
+        return 1
 
     try:
         arrangement = _search(cards, animate=not args.no_animate, delay_ms=args.delay)

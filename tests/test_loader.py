@@ -139,3 +139,11 @@ def test_rejects_a_card_with_no_sides_list(tmp_path):
 
     with pytest.raises(CardConfigError):
         load_cards(_config_file(tmp_path, config))
+
+
+def test_rejects_a_file_that_is_not_valid_json(tmp_path):
+    path = tmp_path / "broken.json"
+    path.write_text("{ not json")
+
+    with pytest.raises(CardConfigError):
+        load_cards(str(path))

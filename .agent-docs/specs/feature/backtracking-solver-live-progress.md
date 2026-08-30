@@ -82,7 +82,10 @@ value written to `out/solution.json`.
   `-1`.
 - No global feasibility analysis — whether the deck can tile a 4x3 rectangle is the
   search's job.
-- `card_config.json` is unchanged.
+- `card_config.json` needs one corrupt key repaired: card 8's top side is keyed
+  `"name": "0"` instead of `"id": "top"`. The other three sides are well-formed, so the
+  intended side is unambiguous. This is a structural fix, not a content change — the
+  symbol and half on that side are left as they are.
 
 ### Arrangement
 
@@ -210,8 +213,9 @@ Tests verify external behaviour at the seams agreed with the user; internals of 
 - Alternative search strategies (MCMC, exact cover / dancing links).
 - Solving grids other than 4x3, or decks other than 12 cards.
 - A `console_scripts` entry point — `pyproject.toml` keeps `package = false`.
-- Re-keying, editing, or validating the *content* of `card_config.json` beyond structural
-  checks.
+- Editing or validating the *content* (symbols, halves) of `card_config.json` beyond
+  structural checks. The one exception is repairing card 8's corrupt `"name": "0"` side
+  key to `"id": "top"`, without which the file cannot be loaded at all.
 - Reading the physical puzzle from a photograph or any other input path.
 
 ## Further Notes

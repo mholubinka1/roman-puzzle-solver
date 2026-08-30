@@ -27,6 +27,8 @@ class Arrangement:
     cells: tuple[Placement | None, ...] = field(default=(None,) * CELL_COUNT)
 
     def placement_at(self, x: int, y: int) -> Placement | None:
+        if not (0 <= x < COLS and 0 <= y < ROWS):
+            return None
         return self.cells[y * COLS + x]
 
     def with_placement(self, x: int, y: int, placement: Placement) -> "Arrangement":

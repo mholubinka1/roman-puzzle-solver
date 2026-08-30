@@ -6,7 +6,9 @@ from card.symbol_type import SymbolType
 
 _CLOCKWISE = (Side.TOP, Side.RIGHT, Side.BOTTOM, Side.LEFT)
 _QUARTER_TURN = 90
-_ORIENTATIONS = (0, _QUARTER_TURN, 2 * _QUARTER_TURN, 3 * _QUARTER_TURN)
+
+#: The four orientations a card may be placed at, clockwise degrees.
+ORIENTATIONS = (0, _QUARTER_TURN, 2 * _QUARTER_TURN, 3 * _QUARTER_TURN)
 
 
 @dataclass(frozen=True)
@@ -45,9 +47,9 @@ class Card:
         return cls(number, tuple(sides[side] for side in _CLOCKWISE))
 
     def symbol_at(self, side: Side, orientation: int = 0) -> Symbol:
-        if orientation not in _ORIENTATIONS:
+        if orientation not in ORIENTATIONS:
             raise ValueError(
-                f"orientation must be one of {_ORIENTATIONS}, got {orientation}"
+                f"orientation must be one of {ORIENTATIONS}, got {orientation}"
             )
         steps = orientation // _QUARTER_TURN
         return self.symbols[(side - steps) % len(_CLOCKWISE)]

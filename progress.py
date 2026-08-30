@@ -8,7 +8,7 @@ from rich.live import Live
 from rich.table import Table
 from rich.text import Text
 
-from arrangement import COLS, ROWS, Placement
+from arrangement import CELL_COUNT, COLS, ROWS, Placement
 from arranger import SearchObserver
 from card.card import Symbol
 from card.side import Side
@@ -79,7 +79,7 @@ def render(
             style = "reverse" if (x, y) == current else ""
             row.append(Text(text, style=style))
         grid.add_row(*row)
-    stats = f"placed {placed}/12 · backtracks {backtracks} · steps {steps}"
+    stats = f"placed {placed}/{CELL_COUNT} · backtracks {backtracks} · steps {steps}"
     return Group(Text(_LEGEND, style="dim"), grid, Text(stats))
 
 

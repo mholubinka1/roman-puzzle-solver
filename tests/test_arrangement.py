@@ -8,6 +8,14 @@ def test_a_new_arrangement_has_no_placements():
     assert not arrangement.is_complete()
 
 
+def test_placement_at_returns_none_outside_the_grid():
+    arrangement = Arrangement()
+
+    assert arrangement.placement_at(-1, 0) is None
+    assert arrangement.placement_at(0, 3) is None
+    assert arrangement.placement_at(4, 0) is None
+
+
 def test_with_placement_records_a_placement_without_changing_the_original(make_card):
     empty = Arrangement()
     placement = Placement(make_card(7), 90)

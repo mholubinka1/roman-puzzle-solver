@@ -1,8 +1,8 @@
 from arrangement import COLS, ROWS, Arrangement, Placement
-from card.card import Card
+from card.card import ORIENTATIONS, Card
 from card.side import Side
 
-_ORIENTATIONS = (0, 90, 180, 270)
+# Cells to fill, in the row-major order the search visits them.
 _CELLS = [(x, y) for y in range(ROWS) for x in range(COLS)]
 
 
@@ -47,7 +47,7 @@ class Arranger:
 
         x, y = _CELLS[cell_index]
         for card in remaining:
-            for orientation in _ORIENTATIONS:
+            for orientation in ORIENTATIONS:
                 placement = Placement(card, orientation)
                 if not self._fits(arrangement, x, y, placement):
                     continue
@@ -67,9 +67,9 @@ class Arranger:
     ) -> bool:
         left = arrangement.placement_at(x - 1, y) if x > 0 else None
         above = arrangement.placement_at(x, y - 1) if y > 0 else None
-        left_neighbour = left.symbol_at(Side.RIGHT) if left else None
-        above_neighbour = above.symbol_at(Side.BOTTOM) if above else None
+        left_edge = left.symbol_at(Side.RIGHT) if left else None
+        top_edge = above.symbol_at(Side.BOTTOM) if above else None
 
-        fits_left = placement.symbol_at(Side.LEFT).is_match(left_neighbour)
-        fits_above = placement.symbol_at(Side.TOP).is_match(above_neighbour)
+        fits_left = placement.symbol_at(Side.LEFT).is_match(left_edge)
+        fits_above = placement.symbol_at(Side.TOP).is_match(top_edge)
         return fits_left and fits_above

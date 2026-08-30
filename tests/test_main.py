@@ -78,3 +78,27 @@ def test_the_animated_run_draws_the_grid(tmp_path, capsys, real_config):
 def test_a_negative_delay_is_rejected(tmp_path, real_config):
     with pytest.raises(SystemExit):
         main.main(["--config", real_config, "--out", str(tmp_path), "--delay", "-5"])
+
+
+def test_a_missing_config_file_exits_cleanly(tmp_path, capsys):
+    out_dir = tmp_path / "out"
+
+    exit_code = main.main(
+        ["--no-animate", "--config", str(tmp_path / "nope.json"), "--out", str(out_dir)]
+    )
+
+    assert exit_code == 1
+    assert "could not load" in capsys.readouterr().err
+    assert not out_dir.exists()
+
+
+def test_a_malformed_config_file_exits_cleanly(tmp_path, capsys):
+    bad = tmp_path / "bad.json"
+    bad.write_text("{ not json")
+    out_dir = tmp_path / "out"
+
+    exit_code = main.main(["--no-animate", "--config", str(bad), "--out", str(out_dir)])
+
+    assert exit_code == 1
+    assert "could not load" in capsys.readouterr().err
+    assert not out_dir.exists()
