@@ -9,7 +9,8 @@ touching edges is completed correctly.
 ### The puzzle
 
 **Card**:
-One of the 12 square tiles. Carries a card number, one symbol per edge, and an orientation.
+One of the 12 square tiles. Carries a card number and one symbol per edge. A card has no
+orientation of its own; orientation belongs to its placement in an arrangement.
 _Avoid_: Square, tile, piece
 
 **Arrangement**:
@@ -17,9 +18,15 @@ A complete placement of all 12 cards into the 4x3 grid, each at some orientation
 every pair of touching edges matches. The puzzle has exactly one.
 _Avoid_: Solution, layout, board, configuration
 
+**Placement**:
+A single card positioned in one grid cell at one orientation. An arrangement is twelve
+placements.
+_Avoid_: Slot, spot, move
+
 **Orientation**:
-The rotation of a card within the grid, always a multiple of 90 degrees (0, 90, 180, 270).
-Rotating a card permutes which symbol sits on which side.
+How far a placed card is turned from its canonical position, always a clockwise multiple of
+90 degrees (0, 90, 180, 270). It is a property of a placement, not of the card. Turning a
+card permutes which symbol sits on which side.
 _Avoid_: Angle, rotation state, facing
 
 ### Cards and symbols
@@ -55,6 +62,14 @@ _Avoid_: Card data, deck file, puzzle input
 ### Solving
 
 **Arranger**:
-The component that searches for the arrangement. The current implementation
-(`MCMCArranger`) is intended to explore placements via Markov chain Monte Carlo sampling.
+The component that searches for the arrangement. It fills the grid cell by cell in
+row-major order by depth-first backtracking: at each cell it tries every unused card at
+every orientation, keeps the ones whose edges match the placed neighbours, and backs out
+of dead ends. The search is exhaustive: it finds the arrangement when one exists, and
+reports that none does otherwise.
 _Avoid_: Solver, engine, searcher
+
+**Observer**:
+A sink the arranger notifies as it works — on each accepted placement and each backtrack.
+The live terminal display is one observer; the search runs the same with none.
+_Avoid_: Listener, callback, hook, subscriber

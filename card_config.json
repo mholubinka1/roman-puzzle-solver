@@ -170,7 +170,7 @@
   "8":{
     "sides":[
       {
-        "name":"0",
+        "id":"top",
         "symbol":"lightCoin",
         "half":"1"
       },

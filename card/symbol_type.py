@@ -11,5 +11,5 @@ class SymbolType(Enum):
     LIGHTCOIN = 6
 
 
-def to_symbol_type(symbol_string: str):
+def to_symbol_type(symbol_string: str) -> SymbolType:
     return SymbolType[symbol_string.upper()]

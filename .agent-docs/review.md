@@ -17,4 +17,7 @@ from — for example:
 
 ## Criteria
 
-_None yet._
+- **Complete exception taxonomy for input parsers**: when a loader promises to turn every malformed input into one domain error type, check every conversion helper it calls (`int()`, `.upper()`, dict indexing, an enum lookup) and catch the full set each can raise — `AttributeError`, `TypeError`, `KeyError`, `ValueError` — not just the common one. (PR #8)
+- **Deterministic collection order**: a function returning a list assembled from a dict, set, or JSON object must impose an explicit sort; output order must not depend on input key or insertion order. (PR #8)
+- **Default only on `None`**: substitute a default for an optional argument with `x if x is None else default`, never `x or default` — the latter silently discards a falsy-but-valid value (empty collection, `0`, an object defining `__bool__`/`__len__`). (PR #8)
+- **Validate bounded constructor arguments**: a class whose `__init__` stores a numeric or range-limited parameter must reject out-of-range values there with a clear error, even when a CLI or other caller already validates — the class is also constructed directly. (PR #8)

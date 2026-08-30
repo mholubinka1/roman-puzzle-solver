@@ -1,73 +1,55 @@
-from argparse import ArgumentError
-from typing import List
+from collections.abc import Mapping
+from dataclasses import dataclass
 
-from side import Sides, circular_addition
-from symbol_type import SymbolType
+from card.side import Side
+from card.symbol_type import SymbolType
+
+_CLOCKWISE = (Side.TOP, Side.RIGHT, Side.BOTTOM, Side.LEFT)
+_QUARTER_TURN = 90
+
+#: The four orientations a card may be placed at, clockwise degrees.
+ORIENTATIONS = (0, _QUARTER_TURN, 2 * _QUARTER_TURN, 3 * _QUARTER_TURN)
 
 
+@dataclass(frozen=True)
 class Symbol:
+    """One half-picture on a card edge: a symbol type paired with a half (1 or -1)."""
+
     type: SymbolType
     half: int
 
-    def __init__(self, symbol_type: SymbolType, half: int):
-        if half not in [1, -1]:
-            raise ArgumentError("A symbol half must be -1 or 1")
-        self.type = symbol_type
-        self.half = half
+    def __post_init__(self) -> None:
+        if self.half not in (1, -1):
+            raise ValueError(f"a symbol half must be 1 or -1, got {self.half!r}")
 
-    def is_match(self, other) -> bool:
-        if other == None:
+    def is_match(self, other: "Symbol | None") -> bool:
+        if other is None:
             return True
-        if other.type != self.type:
-            return False
-        if other.half + self.half != 0:
-            return False
-        return True
+        return self.type is other.type and self.half + other.half == 0
 
 
+@dataclass(frozen=True)
 class Card:
-    card_number: int
-    symbols: dict
-    orientation: int
+    """A puzzle card: a number and its four symbols in canonical (unrotated) positions."""
 
-    def __init__(self, card_number: int, symbols: dict, orientation: int = 0):
-        if len(symbols) != 4:
-            raise ArgumentError("A card must have 4 sides.")
-        if orientation % 90 != 0:
-            raise ArgumentError(
-                "Card cannot be orientated at that angle: {}".format(orientation)
+    number: int
+    symbols: tuple[Symbol, ...]
+
+    def __post_init__(self) -> None:
+        if len(self.symbols) != 4:
+            raise ValueError(f"a card has four symbols, got {len(self.symbols)}")
+
+    @classmethod
+    def from_sides(cls, number: int, sides: Mapping[Side, Symbol]) -> "Card":
+        missing = [side.name for side in _CLOCKWISE if side not in sides]
+        if missing:
+            raise ValueError(f"card {number} is missing sides: {', '.join(missing)}")
+        return cls(number, tuple(sides[side] for side in _CLOCKWISE))
+
+    def symbol_at(self, side: Side, orientation: int = 0) -> Symbol:
+        if orientation not in ORIENTATIONS:
+            raise ValueError(
+                f"orientation must be one of {ORIENTATIONS}, got {orientation}"
             )
-        self.card_number = card_number
-        self.sides = symbols
-        self.orientation = orientation
-
-    def change_orientation(
-        current_orientation: int, rotation_angle: int, clockwise: bool
-    ) -> int:
-        mod_angle = rotation_angle % 360
-        mod_angle = mod_angle if clockwise else (360 - mod_angle)
-        new_orientation = current_orientation + mod_angle
-        return new_orientation % 360
-
-    def rotate(self, clockwise: bool = True, rotation_angle: int = 90) -> None:
-        if rotation_angle % 90 != 0:
-            raise ArgumentError(
-                "Card cannot be rotated by that angle: {}".format(rotation_angle)
-            )
-        self.orientation = self.change_orientation(
-            self.orientation, rotation_angle, clockwise
-        )
-        x = (rotation_angle if clockwise else (360 - (x % 360))) / 90
-        self.sides = [
-            {Sides[circular_addition(key.value, x)]: value}
-            for (key, value) in self.sides
-        ]
-        return
-
-    def is_match(self, matching_symbols: dict) -> bool:
-        if len(matching_symbols) != 4:
-            raise ArgumentError("Matching list of symbols should be of length 4.")
-        for side in Sides:
-            if not self.sides[side].is_match(matching_symbols[side]):
-                return False
-        return True
+        steps = orientation // _QUARTER_TURN
+        return self.symbols[(side - steps) % len(_CLOCKWISE)]

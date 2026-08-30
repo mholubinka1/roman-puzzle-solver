@@ -50,6 +50,7 @@ repos:
     rev: v2.3.0
     hooks:
       - id: mypy
+        exclude: ^tests/  # tests are excluded from type checking in [tool.mypy]
   - repo: https://github.com/pycqa/isort
     rev: 8.0.1
     hooks:

@@ -13,7 +13,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
 ]
-dependencies = []
+dependencies = [ "rich>=13.7" ]
 
 [dependency-groups]
 dev = [
@@ -21,6 +21,8 @@ dev = [
   "isort>=8.0.1",
   "mypy>=2.3.0",
   "pre-commit>=4.6.2",
+  "pytest>=8.3.4",
+  "pytest-cov>=6.0.0",
   "ruff>=0.16.2",
 ]
 
@@ -34,7 +36,9 @@ package = false
 # and it disagrees with ruff's isort implementation on a couple of groupings, so
 # running both fights over the same job. octopus-monitoring's BLE001 ignore is
 # deliberately not carried over — it is specific to that app's except boundaries.
-lint.ignore = [ "I001" ]
+# PYI034 (flake8-pyi) wants `-> Self` from context-manager `__enter__`, but
+# `typing.Self` needs 3.11 and this project supports 3.10; a forward-ref return is fine.
+lint.ignore = [ "I001", "PYI034" ]
 
 [tool.isort]
 profile = "black"
@@ -54,3 +58,12 @@ warn_redundant_casts = true
 implicit_reexport = false
 strict_equality = true
 no_implicit_optional = true
+
+[tool.pytest]
+ini_options.testpaths = [ "tests" ]
+ini_options.pythonpath = [ "." ]
+ini_options.addopts = "--cov --cov-report=term-missing --cov-fail-under=80"
+
+[tool.coverage]
+run.source = [ "." ]
+run.omit = [ "tests/*" ]
